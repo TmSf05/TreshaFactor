@@ -1,0 +1,64 @@
+import threading
+import time
+import os
+from threading import Thread
+from random import randint
+
+# Lock Definition
+threadLock = threading.Lock()
+
+class MyThreadClass (Thread):
+    def __init__(self, name, duration, score, over, word):
+        Thread.__init__(self)
+        self.name = name
+        self.duration = duration
+        self.score = score
+        self.over = over
+        self.word = word
+    
+    def run(self):
+        # Acquire the Lock
+        threadLock.acquire()
+        print("" + self.name + " computing, " + str(self.word) + " Average Score: " + str(self.score) + "/" + str(self.over) + ", Time Elapsed: " + str(self.duration) + "")
+        time.sleep(self.duration)
+        print("" + self.name + " over")
+        self.pass_or_fail()
+        # Release the Lock
+        threadLock.release()
+        
+    def pass_or_fail(self):
+        pass_score = int(self.over * 0.75)
+        if self.score >= pass_score:
+            print("" + self.name + "computing, Assignment: passed \n" )
+        else:
+            print("" + self.name + "computing, Assignment: failed \n" )
+    
+def main():
+    words = ['Assignment', 'Project', 'Quiz', 'Exam']
+    start_time = time.time()
+    # Thread Creation
+    thread1 = MyThreadClass("Thread#1 ", randint(1,10), 10, 10, words[0])
+    thread2 = MyThreadClass("Thread#2 ", randint(1,10), 25, 30, words[0])
+    thread3 = MyThreadClass("Thread#3 ", randint(1,10), 40, 50, words[0])
+    thread4 = MyThreadClass("Thread#4 ", randint(1,10), 30, 30, words[0])
+    thread5 = MyThreadClass("Thread#5 ", randint(1,10), 20, 20, words[0])
+    # Thread Running
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+    thread5.start()
+
+    # Thread joining
+    thread1.join()
+    thread2.join()
+    thread3.join()
+    thread4.join()
+    thread5.join()
+    # End
+    print("End")
+    #Execution Time
+    print("Total Time elapsed: %s seconds" % int(time.time() - start_time))
+    
+if __name__ == "__main__":
+    main()
