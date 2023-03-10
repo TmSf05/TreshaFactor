@@ -1,0 +1,80 @@
+import threading
+import time
+import os
+from threading import Thread
+from random import randint
+
+# Lock Definition
+threadLock = threading.Lock()
+
+class MyThreadClass (Thread):
+    def __init__(self, name, duration, score, over, passed, totals):
+        Thread.__init__(self)
+        self.name = name
+        self.duration = duration
+        self.score = score
+        self.over = over
+        self.passed = passed
+        self.totals = totals
+
+    def run(self):
+      #Acquire the Lock
+        threadLock.acquire()
+
+        if (int(sum(self.score)/ len(self.score))/ int(sum(self.totals)/len(self.totals)))*100>=75:
+            self.passed = True
+        time.sleep(3)      
+       
+        threadLock.release()
+
+        if self.passed:
+            print (f"{self.name} computing, Passed")
+        else:
+            print(f"{self.name} computing, Failed")
+        print(f"{self.name} over")
+
+def main():
+    start_time = time.time()
+    # Thread Creation
+
+    assignment_thread = AverageThread("Thread #1 computing, Assignment Average Score: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+    pass_thread1 = PassThread("Thread #2 computing, Assignment: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+
+    project_thread = AverageThread("Thread #1 computing, Project Average Score: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+    pass_thread2 = PassThread("Thread #2 computingm, Project: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+
+    quiz_thread = AverageThread("Thread #1 computing, Quiz Average Score: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+    pass_thread3 = PassThread("Thread #2 computingm, Quiz: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+
+    exam_thread = AverageThread("Thread #1 computing, Exam Average Score: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+    pass_thread4 = PassThread("Thread #2 computingm, Exam: ", [10, 25, 40, 30, 20], [10, 30, 50, 30, 20])
+
+    assignment_thread.start()
+    assignment_thread.join()
+    pass_thread1.start()
+    pass_thread1.join()
+
+    project_thread.start()
+    project_thread.join()
+    pass_thread2.start()
+    pass_thread2.join()
+    
+    quiz_thread.start()
+    quiz_thread.join()
+    pass_thread3.start()
+    pass_thread3.join()
+    
+    exam_thread.start()
+    exam_thread.join()
+    pass_thread4.start()
+    pass_thread4.join()
+
+    # End 
+    print("End")
+
+    #Execution Time
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+
+if __name__ == "__main__":
+    main()
