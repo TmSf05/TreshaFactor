@@ -3,10 +3,8 @@ import time
 import os
 from threading import Thread
 from random import randint
-
 # Lock Definition
 threadLock = threading.Lock()
-
 class MyThreadClass (Thread):
     def __init__(self, name, duration, score, over, word):
         Thread.__init__(self)
@@ -14,47 +12,50 @@ class MyThreadClass (Thread):
         self.duration = duration
         self.score = score
         self.over = over
+        self.remark = False
         self.word = word
-    
     def run(self):
-        # Acquire the Lock
+        #Acquire the Lock
+        self.score = int((sum(self.score)) / len(self.score))
+        self.over = int((sum(self.over)) / len(self.over))
         threadLock.acquire()
-        print("" + self.name + " computing, " + str(self.word) + " Average Score: " + str(self.score) + "/" + str(self.over) + ", Time Elapsed: " + str(self.duration) + "")
+        print ("Thread#" + str(self.name) + " computing, " + str(self.word) + " Average Score: " + str(self.score) + "/" + str(self.over) + ", Time elapsed: " + str(self.duration))
+        if (((self.score) / (self.over)) * 100) >= 75: #check if passed
+            self.remark = True
         time.sleep(self.duration)
-        print("" + self.name + " over")
-        self.pass_or_fail()
+        print ("Thread#" + self.name + " over")
         # Release the Lock
         threadLock.release()
-        
-    def pass_or_fail(self):
-        pass_score = int(self.over * 0.75)
-        if self.score >= pass_score:
-            print("" + self.name + "computing, Assignment: passed \n" )
+
+        threadLock.acquire()
+        if self.remark == True:
+            remark = "PASSED"
         else:
-            print("" + self.name + "computing, Assignment: failed \n" )
-    
+            remark = "FAILED"
+        thread = int(self.name)
+        print("Thread#" + str(thread+1) + " computing, " + str(self.word) + ": " + str(remark))
+        time.sleep(self.duration)
+        print ("Thread#" + str(thread+1) + " over")
+        threadLock.release()
+
 def main():
     words = ['Assignment', 'Project', 'Quiz', 'Exam']
     start_time = time.time()
     # Thread Creation
-    thread1 = MyThreadClass("Thread#1 ", randint(1,10), 10, 10, words[0])
-    thread2 = MyThreadClass("Thread#2 ", randint(1,10), 25, 30, words[0])
-    thread3 = MyThreadClass("Thread#3 ", randint(1,10), 40, 50, words[0])
-    thread4 = MyThreadClass("Thread#4 ", randint(1,10), 30, 30, words[0])
-    thread5 = MyThreadClass("Thread#5 ", randint(1,10), 20, 20, words[0])
+    thread1 = MyThreadClass(1, randint(1,10), [10, 25, 40, 30, 20], [10, 30, 50, 30, 20], words[0])
+    thread3 = MyThreadClass(3, randint(1,10), [75, 50, 90, 80, 45], [100, 50, 100, 100, 50], words[1])
+    thread5 = MyThreadClass(5, randint(1,10), [20, 10, 20, 45, 15], [50, 30, 20, 50, 30], words[2])
+    thread7 = MyThreadClass(7, randint(1,10), [60], [100], words[3])
     # Thread Running
     thread1.start()
-    thread2.start()
-    thread3.start()
-    thread4.start()
     thread5.start()
-
+    thread3.start()
+    thread7.start()
     # Thread joining
     thread1.join()
-    thread2.join()
-    thread3.join()
-    thread4.join()
     thread5.join()
+    thread3.join()
+    thread7.join()
     # End
     print("End")
     #Execution Time
