@@ -1,0 +1,63 @@
+import threading
+import time
+import os
+from threading import Thread
+from random import randint
+# Lock Definition
+threadLock = threading.Lock()
+class MyThreadClass (Thread):
+    def __init__(self, name, duration, score, over, word):
+        Thread.__init__(self)
+        self.name = name
+        self.duration = duration
+        self.score = score
+        self.over = over
+        self.remark = False
+        self.word = word
+    def run(self):
+        #Acquire the Lock
+        self.score = int((sum(self.score)) / len(self.score))
+        self.over = int((sum(self.over)) / len(self.over))
+        threadLock.acquire()
+        print ("Thread#" + str(self.name) + " computing, " + str(self.word) + " Average Score: " + str(self.score) + "/" + str(self.over) + ", Time elapsed: " + str(self.duration))
+        if (((self.score) / (self.over)) * 100) >= 75: #check if passed
+            self.remark = True
+        time.sleep(self.duration)
+        # Release the Lock
+        threadLock.release()
+
+        threadLock.acquire()
+        if self.remark == True:
+            remark = "PASSED"
+        else:
+            remark = "FAILED"
+        thread = int(self.name)
+        print("Thread#" + str(thread+1) + " computing, " + str(self.word) + ": " + str(remark))
+        time.sleep(self.duration)
+        threadLock.release()
+
+def main():
+    words = ['Assignment', 'Project', 'Quiz', 'Exam']
+    start_time = time.time()
+    # Thread Creation
+    thread1 = MyThreadClass(1, randint(1,10), [10, 25, 40, 30, 20], [10, 30, 50, 30, 20], words[0])
+    thread3 = MyThreadClass(3, randint(1,10), [75, 50, 90, 80, 45], [100, 50, 100, 100, 50], words[1])
+    thread5 = MyThreadClass(5, randint(1,10), [20, 10, 20, 45, 15], [50, 30, 20, 50, 30], words[2])
+    thread7 = MyThreadClass(7, randint(1,10), [60], [100], words[3])
+    # Thread Running
+    thread1.start()
+    thread5.start()
+    thread3.start()
+    thread7.start()
+    # Thread joining
+    thread1.join()
+    thread5.join()
+    thread3.join()
+    thread7.join()
+    # End
+    print("End")
+    #Execution Time
+    print("Total Time elapsed: %s seconds" % int(time.time() - start_time))
+    
+if __name__ == "__main__":
+    main()
