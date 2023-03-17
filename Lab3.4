@@ -1,0 +1,60 @@
+import threading
+import time
+import queue
+
+class Student:
+    def __init__(self, name, problems):
+        self.name = name
+        self.problems = problems
+        self.finished_problems = []
+    
+    def solve_problem(self, problem, barrier):
+        #print(f'{self.name} started solving {problem} at {time.ctime()}')
+        time.sleep(1) # simulate time taken to solve problem
+        self.finished_problems.append(problem)
+        barrier.wait()
+        #print(f'{self.name} finished {problem} at {time.ctime()}')
+
+class ProgrammingProblem:
+    def __init__(self, number):
+        self.number = number
+    
+    def __str__(self):
+        return f'Problem {self.number}'
+
+def simulate_contest():
+    students = [
+        Student('Student 1', [ProgrammingProblem(i) for i in range(1, 6)]),
+        Student('Student 2', [ProgrammingProblem(i) for i in range(1, 6)]),
+        Student('Student 3', [ProgrammingProblem(i) for i in range(1, 6)]),
+    ]
+    
+    # Create a barrier that waits for all students to finish a problem before continuing
+    problem_barrier = threading.Barrier(len(students))
+    
+    # Create a queue to hold the problems that need to be solved
+    problem_queue = queue.Queue()
+    for student in students:
+        for problem in student.problems:
+            problem_queue.put((student, problem))
+    
+    # Create threads to solve problems
+    threads = []
+    while not problem_queue.empty():
+        student, problem = problem_queue.get()
+        thread = threading.Thread(target=student.solve_problem, args=(problem, problem_barrier))
+        threads.append(thread)
+        thread.start()
+    
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
+    
+    # Print results
+    for student in students:
+        print(f'{student.name} finished at {time.ctime()}')
+        for problem in student.finished_problems:
+            print(f'{" " * 15}{problem} - finished at {time.ctime()}')
+
+if __name__ == '__main__':
+    simulate_contest()
