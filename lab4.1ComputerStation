@@ -1,0 +1,41 @@
+import multiprocessing as mp
+import random
+import time
+
+class Computer:
+    def __init__(self, id):
+        self.id = id
+        
+    def __repr__(self):
+        return f"Computer Station {self.id}"
+        
+    def print(self):
+        print(f"{self} printed")
+        
+
+def print_queue(queue):
+    while True:
+        if not queue.empty():
+            computer = queue.get()
+            computer.print()
+            print(f"The size of queue is {queue.qsize()}")
+        else:
+            print("No more Computer Station on queue for printing.")
+            break
+
+if __name__ == '__main__':
+    queue = mp.Queue()
+    
+    # Add 10 computers to queue in random order
+    computer_ids = list(range(1, 11))
+    random.shuffle(computer_ids)
+    for i in computer_ids:
+        computer = Computer(i)
+        queue.put(computer)
+        print(f"{computer} added to queue")
+        time.sleep(random.random())  # simulate random time to add to queue
+    
+    # Start multiprocessing process to print from queue in random order
+    p = mp.Process(target=print_queue, args=(queue,))
+    p.start()
+    p.join()
